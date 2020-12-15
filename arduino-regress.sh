@@ -11,7 +11,8 @@
 #	arudino-cli core --additional-ursl "$MCCI_ADDITIONAL_URLS" install adafruit:avr
 #	arudino-cli core --additional-ursl "$MCCI_ADDITIONAL_URLS" install esp32:esp32
 #
-#	for esp32 compiles: python3, pip3 install pyserial
+#	for esp32 compiles: python3, pip3 install pyserial and make sure python3 is
+#	the default
 #
 #	For platformio compiles: python3, pip3, setuptools, platformio.
 
@@ -21,6 +22,7 @@ rm -rf "$MCCI_CACHE_DIR"
 mkdir -p "$MCCI_CACHE_DIR"
 ln -sf "$(realpath "$PWD")" ~/Arduino/libraries/Test_Library
 typeset -a ERRORS
+trap 0 3 'printf "%s\n" "${ERRORS[@]}"'
 
 function _cacheopts {
 	echo --build-cache-path "$MCCI_CACHE_DIR/${1//:/_}"
@@ -46,12 +48,11 @@ function _samdopts {
 
 # usage: _stm32l0opts BOARD REGION opt xserial upload sysclk
 function _stm32l0opts {
-	local BOARD="mcci:stm32:${1:-mcci_catena_4610}"
-	local OPTS="opt=${3:-osstd},xserial=${4:-generic},upload_method=${6:-STLink},sysclk=${7:-pll32m}"
-	_cacheopts "$BOARD,$OPTS"
+	local BOARD="mcci:stm32:${1:-mcci_catena_4610}:opt=${3:-osstd},xserial=${4:-generic},upload_method=${6:-STLink},sysclk=${7:-pll32m}"
+	_cacheopts "$BOARD"
 	_libopts
 	_commonopts
-	echo -b "$BOARD" --build-property "$BOARD:lorawan_region=${2:-us915},$OPTS"
+	echo -b "$BOARD"
 	echo --build-property recipe.hooks.objcopy.postobjcopy.1.pattern=true
 }
 
@@ -66,11 +67,11 @@ function _avropts {
 
 # usage: _esp32opts BOARD
 function _esp32opts {
-	BOARD=esp32:esp32:${1:-heltec_wifi_lora_32}
+	BOARD="esp32:esp32:${1:-heltec_wifi_lora_32}:FlashFreq=80"
 	_cacheopts "$BOARD"
 	_libopts
 	_commonopts
-	echo -b "$BOARD" --build-property "$BOARD:FlashFreq=80"
+	echo -b "$BOARD"
 }
 
 #### print a comment in a box, so you can find thigns in a log ####
@@ -160,9 +161,8 @@ function _ci_compile {
 	MCCI_SKETCH="$1"
 	shift
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
-	( cd "$(dirname "${MCCI_SKETCH}")" &&
-	  { echo "arduino-cli compile" "$@" "$(basename "${MCCI_SKETCH}")" &&
-	  arduino-cli compile "$@" "$(basename "${MCCI_SKETCH}")" ; } || _error "${MCCI_SKETCH}" "compile failed" ; )
+	echo "arduino-cli compile" "$@" "${MCCI_SKETCH}"
+	arduino-cli compile "$@" "${MCCI_SKETCH}" || _error "${MCCI_SKETCH}" "compile failed"
 }
 
 function _ci_compile_fail {
@@ -178,6 +178,7 @@ function ci_samd {
 	typeset -a MCCI_BOARDS=(mcci_catena_4450 mcci_catena_4410 mcci_catena_4420 mcci_catena_4460 mcci_catena_4470)
 	typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
 	typeset -a MCCI_RADIOS=(sx1276 sx1272)
+	typeset GENOPTS=_samdopts
 	for iSketch in ${MCCI_EXAMPLES_ALL}; do
 	    declare -i SKETCH_IS_USLIKE=0
 	    declare -i REGION_IS_USLIKE=0
@@ -196,10 +197,13 @@ function ci_samd {
 		MCCI_REGION="${iRegion}"
 		MCCI_BOARD="${MCCI_BOARDS[0]}"
 		_projcfg COMPILE_REGRESSION_TEST "CFG_$iRegion" "CFG_$MCCI_RADIO"
-		_ci_compile "${iSketch}" $(_samdopts "$MCCI_BOARD" projcfg)
+		_ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg)
+		if grep -q COMPILE_REGRESSION_TEST "${iSketch}"; then
+			_projcfg "CFG_$iRegion" "CFG_$MCCI_RADIO"
+			_ci_compile_fail "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg)
+		fi
 	    done
 	done
-	# arduino-cli compile $(_samdopts) $PWD/examples/header_test/header_test.ino || echo "failed"
 }
 
 function ci_stm32 {
