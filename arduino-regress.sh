@@ -150,7 +150,7 @@ echo _esp32opts: $(_esp32opts)
 #	$2	message
 function _error {
 	declare MESSAGE="$(basename "$1" .ino) for ${MCCI_TARGET} board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
-	echo "Error: $(basename "$1" .ino) for ${MCCI_TARGET} board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
+	echo "Error: $MESSAGE"
 	ERRORS+=("$MESSAGE")
 }
 
