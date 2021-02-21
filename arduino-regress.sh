@@ -172,13 +172,7 @@ function _ci_compile_fail {
 	arduino-cli compile "$@" "${MCCI_SKETCH}" && _error "${MCCI_SKETCH}" "didn't fail but should have"
 }
 
-function ci_samd {
-	_boxcomment "SAMD"
-	MCCI_TARGET=SAMD
-	typeset -a MCCI_BOARDS=(mcci_catena_4450 mcci_catena_4410 mcci_catena_4420 mcci_catena_4460 mcci_catena_4470)
-	typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
-	typeset -a MCCI_RADIOS=(sx1276 sx1272)
-	typeset GENOPTS=_samdopts
+function ci_generic {
 	for iSketch in ${MCCI_EXAMPLES_ALL}; do
 	    declare -i SKETCH_IS_USLIKE=0
 	    declare -i REGION_IS_USLIKE=0
@@ -206,9 +200,19 @@ function ci_samd {
 	done
 }
 
+function ci_samd {
+	_boxcomment "SAMD"
+	MCCI_TARGET=SAMD
+	typeset -a MCCI_BOARDS=(mcci_catena_4450 mcci_catena_4410 mcci_catena_4420 mcci_catena_4460 mcci_catena_4470)
+	typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
+	typeset -a MCCI_RADIOS=(sx1276 sx1272)
+	typeset GENOPTS=_samdopts
+	ci_generic
+}
+
 function ci_stm32 {
 	_boxcomment "STM32"
-	MCCI_BOARDS="mcci_catena_4610 mcci_catena_4612 mcci_catena_4618 mcci_catnea_4630 mcci_catena_4801 mcci_catena_4802"
+	MCCI_BOARDS="mcci_catena_4610 mcci_catena_4612 mcci_catena_4618 mcci_catena_4630 mcci_catena_4801 mcci_catena_4802"
 	arduino-cli compile $(_stm32l0opts) $PWD/examples/header_test/header_test.ino || echo "failed"
 }
 
