@@ -167,7 +167,7 @@ function _stm32l0opts {
     _cacheopts "$BOARD"
     _libopts
     _commonopts
-    echo -b "$BOARD"
+    echo -b "$BOARD,lorawan_region=${2:-us915}"
     echo --build-property recipe.hooks.objcopy.postobjcopy.1.pattern=true
 }
 
