@@ -206,6 +206,7 @@ function _ci_projcfg {
 function ci_lmic_generic {
     local MCCI_RADIO MCCI_REGION MCCI_BOARD REGION_IS_USLIKE
     local SKETCH_IS_USLIKE REGION_IS_USLIKE SKETCH_HAS_LMIC_FILTER USE_PROJCFG
+    local MCCI_CI_FILTER_NAME
     for iSketch in "$@"; do
         declare -i SKETCH_IS_USLIKE=0
         declare -i REGION_IS_USLIKE=0
@@ -213,10 +214,11 @@ function ci_lmic_generic {
         if [[ "${iSketch/us915/}" != "${iSketch}" ]]; then
             SKETCH_IS_USLIKE=1
         fi
-        if [[ -f "$(dirname "$iSketch")/extra/ci/lmic-filter.sh" ]]; then
+        MCCI_CI_FILTER_NAME="$(dirname "$iSketch")/extra/ci/lmic-filter.sh"
+        if [[ -f "$MCCI_CI_FILTER_NAME" ]]; then
             SKETCH_HAS_LMIC_FILTER=1
             # shellcheck disable=1090
-            source "$(dirname "$iSketch")/extra/ci/lmic-filter.sh"
+            source "$MCCI_CI_FILTER_NAME"
         fi
 
         for iRadio in "${MCCI_RADIOS[@]}"; do
