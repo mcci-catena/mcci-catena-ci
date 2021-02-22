@@ -309,6 +309,8 @@ function _compile {
 }
 
 function _main {
+	_init "$@"
+
 	_setup_path
 	_setup_lmic libraries/arduino-lmic
 	_setup_arduino_cli
