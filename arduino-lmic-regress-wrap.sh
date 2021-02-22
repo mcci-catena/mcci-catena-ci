@@ -317,7 +317,7 @@ function _main {
 		_setup_board_package "$iArch"
 	done
 
-	_compile "$iArch"
+	_compile "$OPTARCH"
 }
 
 _main "$@"
