@@ -156,6 +156,9 @@ function _ci_error {
     MESSAGE="$(basename "$1" .ino) for board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
     # put it into the log now
     echo "Error: $MESSAGE"
+    echo "::group::project_config"
+    cat "$MCCI_LMIC_PATH/project_config/lmic_project_config.h"
+    echo "::endgroup::"
     # and save it for the summary
     MCCI_ERRORS+=("::error::$MESSAGE")
 }
