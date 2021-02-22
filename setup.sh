@@ -103,6 +103,9 @@ function _getargs {
 	if [[ -z "$OPTLIBRARY" ]]; then
 		_fatal "-l not supplied"
 	fi
+	if [[ $OPTDEBUG -ne 0 ]]; then
+		set -x
+	fi
 }
 
 function _init {
