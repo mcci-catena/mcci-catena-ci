@@ -121,7 +121,7 @@ function _cacheopts {
 # create option for setting build directory
 #	$1: sketch name
 function _builddir_opts {
-	printf -- "--build-cache-path %s/%s\n" "$MCCI_BUILD_PATH" "$(printf "%s" "$(basename "$1")" | tr -c -- -A-Za-z0-9_. _)"
+	printf -- "--build-path %s/%s\n" "$MCCI_BUILD_PATH" "$(printf "%s" "$(basename "$1")" | tr -c -- -A-Za-z0-9_. _)"
 }
 
 # create option for scanning libraries
