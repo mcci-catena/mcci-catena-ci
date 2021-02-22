@@ -50,7 +50,7 @@ function _assert_setup_env {
 #### Setup env vars ####
 function _setup_env {
 	# MCCI_TOP is the pointer to the top level dir, assumed to be one above here
-	declare -x MCCI_TOP
+	declare -gx MCCI_TOP
 	if [ X"$CI" != X1 ]; then
 		# no CI; use parent dir
 		MCCI_TOP="$(realpath "$(dirname "$MCCI_THISFILE")/..")"
@@ -60,24 +60,24 @@ function _setup_env {
 	fi
 
 	# MCCI_ADDITIONAL_URLS specifies paths to board files
-	declare -x MCCI_ADDITIONAL_URLS
+	declare -gx MCCI_ADDITIONAL_URLS
 	MCCI_ADDITIONAL_URLS="https://github.com/mcci-catena/arduino-boards/raw/master/BoardManagerFiles/package_mcci_index.json,https://adafruit.github.io/arduino-board-index/package_adafruit_index.json,https://dl.espressif.com/dl/package_esp32_index.json"
 
 	# MCCI_ERRORS is an array of error messages
-	typeset -a MCCI_ERRORS
-	trap 0 3 'printf "%s\n" "${MCCI_ERRORS[@]}"'
+	declare -ga MCCI_ERRORS
+	trap 'printf "%s\n" "${MCCI_ERRORS[@]}"' 0
 
 	# MCCI_ARDUINO_FQCNS is an array of fully-qualified core names
-	typeset -A MCCI_ARDUINO_FQCNS
+	declare -gA MCCI_ARDUINO_FQCNS
 	MCCI_ARDUINO_FQCNS=(
 		[samd]=mcci:samd
 		[stm32]=mcci:stm32
-		[avr32]="arduino:avr adafruit:avr"
+		[avr]="arduino:avr adafruit:avr"
 		[esp32]="esp32:esp32"
 		)
 
 	# record that we've completed init.
-	declare -ri MCCI_ENV_SETUP_COMPLETE=1
+	declare -gri MCCI_ENV_SETUP_COMPLETE=1
 }
 
 function _setup_path {
@@ -100,7 +100,7 @@ function _setup_arduino_cli {
 #### set up a board package: $1 is fqbn
 function _setup_board_package {
 	_assert_setup_env
-	typeset -l CORE
+	local CORE
 	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')"
 	if [[ -z "$CORE" ]]; then
 		arduino-cli core install "$@"
@@ -109,7 +109,8 @@ function _setup_board_package {
 
 # log a compile error message
 function _ci_error {
-	declare MESSAGE="$(basename "$1" .ino) for ${MCCI_TARGET} board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
+	local MESSAGE
+	MESSAGE="$(basename "$1" .ino) for ${MCCI_TARGET} board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
 	echo "Error: $MESSAGE"
 	MCCI_ERRORS+=("::error::$MESSAGE")
 }
@@ -162,6 +163,7 @@ function _splitdef {
 #	$1	sketch
 #	$2..	args to arduino-cli
 function _ci_compile {
+	local MCCI_SKETCH
 	MCCI_SKETCH="$1"
 	shift
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
@@ -175,6 +177,7 @@ function _ci_compile {
 #	$1	sketch
 #	$2..	args to arduino-cli
 function _ci_compile_fail {
+	local MCCI_SKETCH
 	MCCI_SKETCH="$1"
 	shift
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
