@@ -117,7 +117,7 @@ function _main {
 	for iArch in ${MCCI_ARDUINO_FQCNS[$OPTARCH]} ; do
 		_setup_board_package "$iArch"
 	done
-	if [[ $OPTVERBOSE !- 0 ]]; then
+	if [[ $OPTVERBOSE != 0 ]]; then
 		_boxcomment "successful completion"
 	fi
 }
