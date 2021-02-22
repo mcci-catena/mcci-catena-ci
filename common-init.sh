@@ -158,6 +158,11 @@ function _ci_error {
     MCCI_ERRORS+=("::error::$MESSAGE")
 }
 
+# return non-zero if any errors have been logged
+function _ci_check_errors {
+    return $(( ${#MCCI_ERRORS[*]} != 0 ))
+}
+
 #### print a comment in a box, so you can find thigns in a log ####
 function _boxcomment {
     printf "%s\n" "$@" | fmt | awk '

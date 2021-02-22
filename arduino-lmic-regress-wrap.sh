@@ -318,6 +318,7 @@ function _main {
     done
 
     _compile "$OPTARCH"
+    _ci_check_errors
 }
 
 _main "$@"
