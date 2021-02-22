@@ -71,7 +71,7 @@ function _setup_env {
 	MCCI_BUILD_CACHE_PATH="$MCCI_TOP/.core"
 	if [[ ! -d "$MCCI_BUILD_CACHE_PATH" ]]; then
 		rm -rf "$MCCI_BUILD_CACHE_PATH"
-		mkdir "MCCI_BUILD_CACHE_PATH"
+		mkdir "$MCCI_BUILD_CACHE_PATH"
 	fi
 
 	# make sure there's a build dir
@@ -79,7 +79,7 @@ function _setup_env {
 	MCCI_BUILD_PATH="$MCCI_TOP/.build"
 	if [[ ! -d "$MCCI_BUILD_PATH" ]]; then
 		rm -rf "$MCCI_BUILD_PATH"
-		mkdir "MCCI_BUILD_PATH"
+		mkdir "$MCCI_BUILD_PATH"
 	fi
 
 	# MCCI_ERRORS is an array of error messages
