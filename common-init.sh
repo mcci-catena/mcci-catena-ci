@@ -139,7 +139,7 @@ function _setup_board_package {
 #### set up the lmic: $1 is path
 function _setup_lmic {
 	_assert_setup_env
-	if [[ ! -d "$1/project-config" ]]; then
+	if [[ ! -d "$1/project_config" ]]; then
 		_fatal "$1 doesn't look like an arduino-lmic directory"
 	fi
 	declare -gx MCCI_LMIC_PATH
