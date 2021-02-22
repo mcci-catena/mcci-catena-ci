@@ -158,7 +158,7 @@ function _samdopts {
     _cacheopts "$BOARD"
     _libopts
     _commonopts
-    echo -b "$BOARD:lorawan_region=${2:-us915}" 
+    echo -b "$BOARD:lorawan_region=${2:-us915}"
 }
 
 # usage: _stm32l0opts BOARD REGION opt xserial upload sysclk

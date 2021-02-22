@@ -9,7 +9,7 @@
 #	scripts in this directory.
 #
 # Usage:
-#	source common-init.sh 
+#	source common-init.sh
 #
 # Copyright and License:
 #	See accompanying LICENSE.md file
