@@ -94,6 +94,7 @@ function _setup_arduino_cli {
 	_assert_setup_env
 	if [[ ! -x "${MCCI_TOP}/bin/arduino-cli" ]] ; then
 		curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR="${MCCI_TOP}"/bin sh
+		arduino-cli config init
 	fi
 	# change each , in MCCI_ADDITIONAL_URLS to a space, then set the CLI defaults.
 	arduino-cli config set board_manager.additional_urls ${MCCI_ADDITIONAL_URLS//,/ }
