@@ -215,9 +215,10 @@ function _ci_compile {
     local MCCI_SKETCH
     MCCI_SKETCH="$1"
     shift
-    echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
+    echo "::group::Compile ${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}"
     echo "arduino-cli compile" "$@" "${MCCI_SKETCH}"
     arduino-cli compile "$@" "${MCCI_SKETCH}" || _ci_error "${MCCI_SKETCH}" "compile failed"
+    echo "::endgroup::"
 }
 
 # do a compile: but expect the compile to fail.
@@ -229,13 +230,15 @@ function _ci_compile_fail {
     local MCCI_SKETCH
     MCCI_SKETCH="$1"
     shift
-    echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
+    echo "::group::Compile ${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO} (expecting failure)"
+    echo "arduino-cli compile" "$@" "${MCCI_SKETCH}"
     if arduino-cli compile "$@" "${MCCI_SKETCH}" ; then
         _ci_error "${MCCI_SKETCH}" "didn't fail but should have"
     else
         # if set -e is on, we need something here to keep from failing.
         true
     fi
+    echo "::endgroup::"
 }
 
 #
