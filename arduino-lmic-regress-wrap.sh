@@ -260,7 +260,7 @@ function ci_stm32 {
     typeset -a MCCI_BOARDS=(mcci_catena_4610 mcci_catena_4612 mcci_catena_4618 mcci_catena_4630 mcci_catena_4801 mcci_catena_4802)
     typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
     typeset -a MCCI_RADIOS=(sx1276)
-    typeset GENOPTS=_stm32opts
+    typeset GENOPTS=_stm32l0opts
     ci_lmic_generic "$@"
 }
 
