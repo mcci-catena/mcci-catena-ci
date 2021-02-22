@@ -227,15 +227,14 @@ function ci_lmic_generic {
                     fi
                     if grep -q COMPILE_REGRESSION_TEST "${iSketch}"; then
                         _projcfg COMPILE_REGRESSION_TEST "CFG_$iRegion" "CFG_$MCCI_RADIO"
-                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg)
+                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
                         _projcfg "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
-                        _ci_compile_fail "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg)
+                        _ci_compile_fail "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
                     elif [[ $MCCI_USE_PROJCFG -eq 0 && "$iRadio" != "sx1276" ]]; then
-                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" "$iRegion")
+                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" "$iRegion") $(_builddir_opts "${iSketch}")
                     else
                         _projcfg "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
-                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg)
-                        _ci_compile "${iSketch}" 
+                        _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
                     fi
                 done
             done
