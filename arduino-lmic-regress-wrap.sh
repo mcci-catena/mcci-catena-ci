@@ -279,10 +279,10 @@ function ci_avr {
 	_boxcomment "AVR 32u4"
 	local MCCI_BOARDS MCCI_REGIONS MCCI_RADIOS MCCI_USE_PROJCFG
 	declare -ri MCCI_USE_PROJCFG=1
-	typeset -a MCCI_BOARDS=(heltec_wifi_lora_32)
+	typeset -a MCCI_BOARDS=(feather32u4)
 	typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
 	typeset -a MCCI_RADIOS=(sx1276 sx1272)
-	typeset GENOPTS=_esp32opts
+	typeset GENOPTS=_avropts
 	ci_lmic_generic "${MCCI_EXAMPLES_ALL[@]}"
 }
 
