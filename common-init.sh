@@ -154,7 +154,9 @@ function _setup_lmic {
 function _ci_error {
     local MESSAGE
     MESSAGE="$(basename "$1" .ino) for board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
+    # put it into the log now
     echo "Error: $MESSAGE"
+    # and save it for the summary
     MCCI_ERRORS+=("::error::$MESSAGE")
 }
 

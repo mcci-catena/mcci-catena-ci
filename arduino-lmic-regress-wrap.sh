@@ -191,9 +191,21 @@ function _esp32opts {
     echo -b "$BOARD"
 }
 
+# do the projcfg setup forthis sketch
+function _ci_projcfg {
+    if [[ $SKETCH_HAS_LMIC_FILTER -ne 0 ]]; then
+        _lmic_filter projcfg "$@"
+    else
+        # drop the sketch argument
+        shift
+        _projcfg "$@"
+    fi
+}
+
+# do a generic compile
 function ci_lmic_generic {
     local MCCI_RADIO MCCI_REGION MCCI_BOARD REGION_IS_USLIKE
-    local SKETCH_IS_USLIKE REGION_IS_USLIKE SKETCH_HAS_LMIC_FILTER
+    local SKETCH_IS_USLIKE REGION_IS_USLIKE SKETCH_HAS_LMIC_FILTER USE_PROJCFG
     for iSketch in "$@"; do
         declare -i SKETCH_IS_USLIKE=0
         declare -i REGION_IS_USLIKE=0
@@ -220,20 +232,21 @@ function ci_lmic_generic {
                     MCCI_RADIO="${iRadio}"
                     MCCI_REGION="${iRegion}"
                     MCCI_BOARD="${iBoard}"
+                    declare -i USE_PROJCFG=$MCCI_USE_PROJCFG
                     if [[ $SKETCH_HAS_LMIC_FILTER -ne 0 ]]; then
-                        if _lmic_filter skip "$iSketch"; then
+                        if ! _lmic_filter process "$iSketch"; then
                             continue
                         fi
                     fi
                     if grep -q COMPILE_REGRESSION_TEST "${iSketch}"; then
-                        _projcfg COMPILE_REGRESSION_TEST "CFG_$iRegion" "CFG_$MCCI_RADIO"
+                        _ci_projcfg "${iSketch}" COMPILE_REGRESSION_TEST "CFG_$iRegion" "CFG_$MCCI_RADIO"
                         _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
-                        _projcfg "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
+                        _ci_projcfg "${iSketch}" "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
                         _ci_compile_fail "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
-                    elif [[ $MCCI_USE_PROJCFG -eq 0 && "$iRadio" != "sx1276" ]]; then
+                    elif [[ $USE_PROJCFG -eq 0 && "$iRadio" != "sx1276" ]]; then
                         _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" "$iRegion") $(_builddir_opts "${iSketch}")
                     else
-                        _projcfg "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
+                        _ci_projcfg "${iSketch}" "CFG_$MCCI_REGION" "CFG_$MCCI_RADIO"
                         _ci_compile "${iSketch}" $($GENOPTS "$MCCI_BOARD" projcfg) $(_builddir_opts "${iSketch}")
                     fi
                 done
@@ -299,6 +312,8 @@ function _init {
 
 function _compile {
     typeset -a MCCI_EXAMPLES_ALL
+    typeset -gx MCCI_CI_ARCH="$1"
+
     # shellcheck disable=2207
     MCCI_EXAMPLES_ALL=($(_list_examples "$OPTLIBRARY"))
 
