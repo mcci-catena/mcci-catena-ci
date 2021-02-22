@@ -106,6 +106,8 @@ function _getargs {
 }
 
 function _init {
+	set -e
+
 	# shellcheck source=./common-init.sh
 	source "$MCCI_PDIR"/common-init.sh
 	_setup_env
