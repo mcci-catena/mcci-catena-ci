@@ -101,7 +101,8 @@ function _setup_arduino_cli {
 function _setup_board_package {
 	_assert_setup_env
 	local CORE
-	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')"
+	CORE=
+	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')" || true
 	if [[ -z "$CORE" ]]; then
 		arduino-cli core install "$@"
 	fi
