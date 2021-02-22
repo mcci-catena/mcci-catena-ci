@@ -318,3 +318,5 @@ function _main {
 
 	_compile "$iArch"
 }
+
+_main "$@"
