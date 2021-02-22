@@ -213,10 +213,10 @@ function ci_lmic_generic {
         if [[ "${iSketch/us915/}" != "${iSketch}" ]]; then
             SKETCH_IS_USLIKE=1
         fi
-        if [[ -f "$(dirname "$iSketch")/ci/lmic-filter.sh" ]]; then
+        if [[ -f "$(dirname "$iSketch")/extra/ci/lmic-filter.sh" ]]; then
             SKETCH_HAS_LMIC_FILTER=1
             # shellcheck disable=1090
-            source "$(dirname "$iSketch")/ci/lmic-filter.sh"
+            source "$(dirname "$iSketch")/extra/ci/lmic-filter.sh"
         fi
 
         for iRadio in "${MCCI_RADIOS[@]}"; do
