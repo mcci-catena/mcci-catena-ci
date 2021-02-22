@@ -213,7 +213,7 @@ function _ci_compile {
 	shift
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
 	echo "arduino-cli compile" "$@" "${MCCI_SKETCH}"
-	arduino-cli compile "$@" "${MCCI_SKETCH}" || _error "${MCCI_SKETCH}" "compile failed"
+	arduino-cli compile "$@" "${MCCI_SKETCH}" || _ci_error "${MCCI_SKETCH}" "compile failed"
 }
 
 # do a compile: but expect the compile to fail.
@@ -226,7 +226,7 @@ function _ci_compile_fail {
 	MCCI_SKETCH="$1"
 	shift
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
-	arduino-cli compile "$@" "${MCCI_SKETCH}" && _error "${MCCI_SKETCH}" "didn't fail but should have"
+	arduino-cli compile "$@" "${MCCI_SKETCH}" && _ci_error "${MCCI_SKETCH}" "didn't fail but should have"
 }
 
 #
