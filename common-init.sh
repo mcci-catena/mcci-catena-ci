@@ -59,9 +59,28 @@ function _setup_env {
 		MCCI_TOP="${GITHUB_WORKSPACE:?CI defined but GITHUB_WORKSPACE is not defined}"
 	fi
 
+	# setup MCCI_LMIC_PATH - initially empty
+	declare -gx MCCI_LMIC_PATH
+
 	# MCCI_ADDITIONAL_URLS specifies paths to board files
 	declare -gx MCCI_ADDITIONAL_URLS
 	MCCI_ADDITIONAL_URLS="https://github.com/mcci-catena/arduino-boards/raw/master/BoardManagerFiles/package_mcci_index.json,https://adafruit.github.io/arduino-board-index/package_adafruit_index.json,https://dl.espressif.com/dl/package_esp32_index.json"
+
+	# make sure there's a build cache dir
+	declare -gx MCCI_BUILD_CACHE_PATH
+	MCCI_BUILD_CACHE_PATH="$MCCI_TOP/.core"
+	if [[ ! -d "$MCCI_BUILD_CACHE_PATH" ]]; then
+		rm -rf "$MCCI_BUILD_CACHE_PATH"
+		mkdir "MCCI_BUILD_CACHE_PATH"
+	fi
+
+	# make sure there's a build dir
+	declare -gx MCCI_BUILD_PATH
+	MCCI_BUILD_PATH="$MCCI_TOP/.build"
+	if [[ ! -d "$MCCI_BUILD_PATH" ]]; then
+		rm -rf "$MCCI_BUILD_PATH"
+		mkdir "MCCI_BUILD_PATH"
+	fi
 
 	# MCCI_ERRORS is an array of error messages
 	declare -ga MCCI_ERRORS
@@ -117,6 +136,16 @@ function _setup_board_package {
 	fi
 }
 
+#### set up the lmic: $1 is path
+function _setup_lmic {
+	_assert_setup_env
+	if [[ ! -d "$1/project-config" ]]; then
+		_fatal "$1 doesn't look like an arduino-lmic directory"
+	fi
+	declare -gx MCCI_LMIC_PATH
+	MCCI_LMIC_PATH="$1"
+}
+
 # log a compile error message
 function _ci_error {
 	local MESSAGE
@@ -149,6 +178,12 @@ function _boxcomment {
 		}
 		printf("%s\n", mark);
 	}'
+}
+
+function _boxverbose {
+	if [[ $OPTVERBOSE -ne 0 ]]; then
+		_boxcomment "$@"
+	fi
 }
 
 # split up a word that might be FOO=value or FOO, and output
@@ -193,3 +228,16 @@ function _ci_compile_fail {
 	echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
 	arduino-cli compile "$@" "${MCCI_SKETCH}" && _error "${MCCI_SKETCH}" "didn't fail but should have"
 }
+
+#
+# make a list of examples to be checked in a given library:
+#	$1:	pointer to library dir
+function _list_examples {
+	for i in "$1"/examples/* ; do
+		CANDIDATE=$(basename $i)
+		if [ -f "$i/${CANDIDATE}.ino" ]; then
+			echo "$i/${CANDIDATE}.ino"
+		fi
+	done
+}
+
