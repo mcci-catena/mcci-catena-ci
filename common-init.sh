@@ -103,11 +103,17 @@ function _setup_arduino_cli {
 #### set up a board package: $1 is fqbn
 function _setup_board_package {
 	_assert_setup_env
-	local CORE
+	local CORE FIRST
+	declare -i FIRST
+	FIRST=0
 	CORE=
-	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')" || true
+	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')" || { FIRST=1 ; true ; }
 	if [[ -z "$CORE" ]]; then
 		arduino-cli core install "$@"
+		if [[ "$1" = "esp32" && $FIRST -ne 0 ]]; then
+			# gotta have python3 and pip3, but that's in base.
+			pip3 install pyserial
+		fi
 	fi
 }
 
