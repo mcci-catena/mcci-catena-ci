@@ -154,11 +154,10 @@ function _setup_lmic {
 function _ci_error {
     local MESSAGE
     MESSAGE="$(basename "$1" .ino) for board ${MCCI_BOARD} region ${MCCI_REGION} radio ${MCCI_RADIO}: $2"
-    # put it into the log now
+    # put it into the log now, along with the project config.
     echo "Error: $MESSAGE"
-    echo "::group::project_config"
+    _boxcomment lmic_project_config.h
     cat "$MCCI_LMIC_PATH/project_config/lmic_project_config.h"
-    echo "::endgroup::"
     # and save it for the summary
     MCCI_ERRORS+=("::error::$MESSAGE")
 }
