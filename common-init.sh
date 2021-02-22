@@ -230,7 +230,12 @@ function _ci_compile_fail {
     MCCI_SKETCH="$1"
     shift
     echo "${MCCI_SKETCH} ${MCCI_BOARD} ${MCCI_REGION} ${MCCI_RADIO}:"
-    arduino-cli compile "$@" "${MCCI_SKETCH}" && _ci_error "${MCCI_SKETCH}" "didn't fail but should have"
+    if arduino-cli compile "$@" "${MCCI_SKETCH}" ; then
+        _ci_error "${MCCI_SKETCH}" "didn't fail but should have"
+    else
+        # if set -e is on, we need something here to keep from failing.
+        true
+    fi
 }
 
 #
