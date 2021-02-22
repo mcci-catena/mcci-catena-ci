@@ -300,7 +300,8 @@ function _init {
 
 function _compile {
 	typeset -a MCCI_EXAMPLES_ALL
-	MCCI_EXAMPLES_ALL=($(_list_examples))
+	# shellcheck disable=2207
+	MCCI_EXAMPLES_ALL=($(_list_examples "$OPTLIBRARY"))
 
 	_boxverbose "Examples:" "${MCCI_EXAMPLES_ALL[@]}"
 
