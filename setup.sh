@@ -19,7 +19,7 @@ MCCI_PNAME="$(basename "$0")"
 MCCI_PDIR="$(dirname "$0")"
 declare -r MCCI_PNAME MCCI_PDIR
 
-typeset -i OPTDEBUG OPTVERBOSE
+declare -i OPTDEBUG OPTVERBOSE
 OPTDEBUG=0
 OPTVERBOSE=0
 OPTARCH=
@@ -79,6 +79,10 @@ function _getargs {
 		D)	OPTDEBUG=$NEXTBOOL;;
 		v)	OPTVERBOSE=$NEXTBOOL;;
 		a)	OPTARCH="$OPTARG"
+			_debug "OPTARCH: $OPTARCH"
+			if [[ $OPTDEBUG -ne 0 ]]; then
+				declare -p MCCI_ARDUINO_FQCNS
+			fi
 			if [[ -z "${MCCI_ARDUINO_FQCNS[$OPTARCH]}" ]]; then
 				_fatal "Unknown arch: $OPTARG"
 			fi
