@@ -108,6 +108,7 @@ function _getargs {
 function _init {
 	# shellcheck source=./common-init.sh
 	source "$MCCI_PDIR"/common-init.sh
+	_setup_env
 
 	_getargs "$@"
 }
@@ -115,7 +116,6 @@ function _init {
 function _main {
 	_init "$@"
 
-	_setup_env
 	_setup_path
 	_setup_cli
 	for iArch in ${MCCI_ARDUINO_FQCNS[$OPTARCH]} ; do
