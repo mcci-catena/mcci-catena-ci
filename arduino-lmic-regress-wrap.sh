@@ -115,18 +115,18 @@ function _getargs {
 #	$1: fqbn with config options
 #
 function _cacheopts {
-	printf "--build-cache-path %s/%s\n" "$MCCI_BUILD_CACHE_PATH" "$(printf "%s" "$1" | tr -c -- -A-Za-z0-9_,=. _)"
+	printf -- "--build-cache-path %s/%s\n" "$MCCI_BUILD_CACHE_PATH" "$(printf "%s" "$1" | tr -c -- -A-Za-z0-9_,=. _)"
 }
 
 # create option for setting build directory
 #	$1: sketch name
 function _builddir_opts {
-	printf "--build-cache-path %s/%s\n" "$MCCI_BUILD_PATH" "$(printf "%s" "$(basename "$1")" | tr -c -- -A-Za-z0-9_. _)"
+	printf -- "--build-cache-path %s/%s\n" "$MCCI_BUILD_PATH" "$(printf "%s" "$(basename "$1")" | tr -c -- -A-Za-z0-9_. _)"
 }
 
 # create option for scanning libraries
 function _libopts {
-	printf "--libraries %s\n" libraries
+	printf -- "--libraries %s\n" libraries
 }
 
 function _commonopts {
