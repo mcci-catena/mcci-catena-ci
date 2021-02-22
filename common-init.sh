@@ -131,6 +131,7 @@ function _setup_board_package {
 		arduino-cli core install "$@"
 		if [[ "$1" = "esp32:esp32" && $FIRST -ne 0 ]]; then
 			# gotta have python3 and pip3, but that's in base.
+			sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 			python3 -m pip install -U pip
 			pip3 install setuptools
 			pip3 install pyserial
