@@ -110,7 +110,7 @@ function _setup_board_package {
 	CORE="$(arduino-cli core list | awk 'NR>1 {print $1}' | grep "^$1"'$')" || { FIRST=1 ; true ; }
 	if [[ -z "$CORE" ]]; then
 		arduino-cli core install "$@"
-		if [[ "$1" = "esp32" && $FIRST -ne 0 ]]; then
+		if [[ "$1" = "esp32:esp32" && $FIRST -ne 0 ]]; then
 			# gotta have python3 and pip3, but that's in base.
 			pip3 install pyserial
 		fi
