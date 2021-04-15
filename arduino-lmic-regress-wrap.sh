@@ -184,7 +184,7 @@ function _avropts {
 # usage: _esp32opts BOARD
 function _esp32opts {
     local BOARD
-    BOARD="esp32:esp32:${1:-heltec_wifi_lora_32}:FlashFreq=80"
+    BOARD="esp32:esp32:${1:-heltec_wifi_lora_32}"
     _cacheopts "$BOARD"
     _libopts
     _commonopts
