@@ -28,7 +28,7 @@ function _error {
     else
         #
         # we really want MCCI_PNAME not to be quoted, so it will vanish if undefined,
-        # causing the printf to produce nothing, and then causing awk to product nothing.
+        # causing the printf to produce nothing, and then causing awk to produce nothing.
         #
         # shellcheck disable=2086
         echo "::error $(printf "%s" ${MCCI_PNAME} | awk '{printf("file=%s", $0)}')::$(caller 0 | awk '{printf("%s:", $2); }'): $*"
@@ -51,9 +51,15 @@ function _assert_setup_env {
 function _setup_env {
     # MCCI_TOP is the pointer to the top level dir, assumed to be one above here
     declare -gx MCCI_TOP
+    declare -ig MCCI_RM_TOP=0
     if [ X"$CI" != X1 ]; then
-        # no CI; use parent dir
-        MCCI_TOP="$(realpath "$(dirname "$MCCI_THISFILE")/..")"
+        # no CI; MCCI_TOP must be set
+        if [[ -z "$MCCI_WORK" || ! -d "$MCCI_WORK" ]]; then
+            _fatal "when running outside CI, MCCI_WORK must point to a suitable work directory"
+        fi
+        mkdir "$MCCI_WORK"/$$
+        MCCI_TOP="$(realpath "$MCCI_WORK"/$$)"
+        MCCI_RM_TOP=0
     else
         # CI: use GITHUB_WORKSPACE
         MCCI_TOP="${GITHUB_WORKSPACE:?CI defined but GITHUB_WORKSPACE is not defined}"
@@ -84,7 +90,7 @@ function _setup_env {
 
     # MCCI_ERRORS is an array of error messages
     declare -ga MCCI_ERRORS
-    trap 'printf "%s\n" "${MCCI_ERRORS[@]}"' 0
+    trap '_cleanup_exit' 0
 
     # MCCI_ARDUINO_FQCNS is an array of fully-qualified core names
     declare -gA MCCI_ARDUINO_FQCNS
@@ -99,29 +105,52 @@ function _setup_env {
     declare -gri MCCI_ENV_SETUP_COMPLETE=1
 }
 
+function _cleanup_exit {
+    printf "%s\n" "${MCCI_ERRORS[@]}"
+    _assert_setup_env
+    if [[ $MCCI_ENV_SETUP_COMPLETE -ne 0 && $MCCI_RM_TOP -ne 0 ]]; then  
+        rm -rf "$MCCI_TOP"
+    fi
+}
+
 function _setup_path {
     _assert_setup_env
-    if [ ! -d "${MCCI_TOP}/bin" ]; then
-        mkdir "${MCCI_TOP}/bin"
-    fi
 
-    PATH="$PATH:${MCCI_TOP}/bin"
+    if [[ -z "$CI" ]]; then
+        return
+    else
+        if [ ! -d "${MCCI_TOP}/bin" ]; then
+            mkdir "${MCCI_TOP}/bin"
+        fi
+
+        PATH="$PATH:${MCCI_TOP}/bin"
+    fi
 }
 
 #### set up the Arduino-CLI ####
 function _setup_arduino_cli {
     _assert_setup_env
-    if [[ ! -x "${MCCI_TOP}/bin/arduino-cli" ]] ; then
-        curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR="${MCCI_TOP}"/bin sh
-        arduino-cli config init
+    if [[ -z "$CI" ]]; then
+        if ! which arduino-cli > /dev/null; then
+            _fatal "arduino-cli not found in path"
+        fi
+    else
+        if [[ ! -x "${MCCI_TOP}/bin/arduino-cli" ]] ; then
+            curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR="${MCCI_TOP}"/bin sh
+            arduino-cli config init
+        fi
+        # change each , in MCCI_ADDITIONAL_URLS to a space, then set the CLI defaults.
+        arduino-cli config set board_manager.additional_urls ${MCCI_ADDITIONAL_URLS//,/ }
     fi
-    # change each , in MCCI_ADDITIONAL_URLS to a space, then set the CLI defaults.
-    arduino-cli config set board_manager.additional_urls ${MCCI_ADDITIONAL_URLS//,/ }
 }
 
 #### set up a board package: $1 is fqbn
 function _setup_board_package {
     _assert_setup_env
+    if [[ -z "$CI" ]]; then
+        # set up board packages locally by hand.
+        return
+    fi
     local CORE FIRST
     declare -i FIRST
     FIRST=0
@@ -261,4 +290,3 @@ function _list_examples {
         fi
     done
 }
-
