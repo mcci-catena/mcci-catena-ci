@@ -21,7 +21,7 @@ declare -r MCCI_PNAME MCCI_PDIR
 
 declare -i OPTDEBUG OPTVERBOSE
 OPTDEBUG=0
-OPTVERBOSE=1
+OPTVERBOSE=0
 OPTARCH=
 OPTLIBRARY=
 
@@ -126,7 +126,7 @@ function _builddir_opts {
 
 # create option for scanning libraries
 function _libopts {
-    printf -- "--libraries %s\n" ../libraries
+    printf -- "--libraries %s\n" libraries
 }
 
 function _commonopts {
@@ -240,7 +240,7 @@ function _main {
     _init "$@"
 
     _setup_path
-    _setup_Catena-Arduino-Platform ../libraries/Catena-Arduino-Platform
+    _setup_Catena-Arduino-Platform libraries/Catena-Arduino-Platform
     _setup_arduino_cli
     for iArch in ${MCCI_ARDUINO_FQCNS[$OPTARCH]} ; do
         _setup_board_package "$iArch"
