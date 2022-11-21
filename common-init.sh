@@ -117,6 +117,7 @@ function _setup_arduino_cli {
     fi
     # change each , in MCCI_ADDITIONAL_URLS to a space, then set the CLI defaults.
     arduino-cli config set board_manager.additional_urls ${MCCI_ADDITIONAL_URLS//,/ }
+    arduino-cli core update-index
 }
 
 #### set up a board package: $1 is fqbn
