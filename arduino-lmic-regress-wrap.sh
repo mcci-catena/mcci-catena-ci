@@ -257,12 +257,24 @@ function ci_lmic_generic {
     done
 }
 
+##############################################################################
+# Per-architecture build lists.
+#
+# MCCI_CI_BOARDS and MCCI_CI_REGIONS, if set in the environment, replace the
+# board and region lists below. Each is a space-separated list. The GitHub
+# workflow sets them to run one job per board, so the jobs run in parallel
+# instead of one 30-minute job per architecture. Unset, the lists are as
+# they always were.
+##############################################################################
+
 function ci_samd {
     _boxcomment "SAMD"
     local MCCI_BOARDS MCCI_REGIONS MCCI_RADIOS MCCI_USE_PROJCFG
     declare -ri MCCI_USE_PROJCFG=0
-    typeset -a MCCI_BOARDS=(mcci_catena_4450 mcci_catena_4410 mcci_catena_4420 mcci_catena_4460 mcci_catena_4470)
-    typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
+    # shellcheck disable=2206
+    typeset -a MCCI_BOARDS=(${MCCI_CI_BOARDS:-mcci_catena_4450 mcci_catena_4410 mcci_catena_4420 mcci_catena_4460 mcci_catena_4470})
+    # shellcheck disable=2206
+    typeset -a MCCI_REGIONS=(${MCCI_CI_REGIONS:-us915 eu868 au915 as923 as923jp kr920 in866})
     typeset -a MCCI_RADIOS=(sx1276)
     typeset GENOPTS=_samdopts
     ci_lmic_generic "$@"
@@ -272,8 +284,10 @@ function ci_stm32 {
     _boxcomment "STM32"
     local MCCI_BOARDS MCCI_REGIONS MCCI_RADIOS MCCI_USE_PROJCFG
     declare -ri MCCI_USE_PROJCFG=0
-    typeset -a MCCI_BOARDS=(mcci_catena_4610 mcci_catena_4612 mcci_catena_4618 mcci_catena_4630 mcci_catena_4801 mcci_catena_4802)
-    typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
+    # shellcheck disable=2206
+    typeset -a MCCI_BOARDS=(${MCCI_CI_BOARDS:-mcci_catena_4610 mcci_catena_4612 mcci_catena_4618 mcci_catena_4630 mcci_catena_4801 mcci_catena_4802})
+    # shellcheck disable=2206
+    typeset -a MCCI_REGIONS=(${MCCI_CI_REGIONS:-us915 eu868 au915 as923 as923jp kr920 in866})
     typeset -a MCCI_RADIOS=(sx1276)
     typeset GENOPTS=_stm32l0opts
     ci_lmic_generic "$@"
@@ -283,8 +297,10 @@ function ci_esp32 {
     _boxcomment "ESP32"
     local MCCI_BOARDS MCCI_REGIONS MCCI_RADIOS MCCI_USE_PROJCFG
     declare -ri MCCI_USE_PROJCFG=1
-    typeset -a MCCI_BOARDS=(heltec_wifi_lora_32)
-    typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
+    # shellcheck disable=2206
+    typeset -a MCCI_BOARDS=(${MCCI_CI_BOARDS:-heltec_wifi_lora_32})
+    # shellcheck disable=2206
+    typeset -a MCCI_REGIONS=(${MCCI_CI_REGIONS:-us915 eu868 au915 as923 as923jp kr920 in866})
     typeset -a MCCI_RADIOS=(sx1276)
     typeset GENOPTS=_esp32opts
     ci_lmic_generic "${MCCI_EXAMPLES_ALL[@]}"
@@ -294,8 +310,10 @@ function ci_avr {
     _boxcomment "AVR 32u4"
     local MCCI_BOARDS MCCI_REGIONS MCCI_RADIOS MCCI_USE_PROJCFG
     declare -ri MCCI_USE_PROJCFG=1
-    typeset -a MCCI_BOARDS=(feather32u4)
-    typeset -a MCCI_REGIONS=(us915 eu868 au915 as923 as923jp kr920 in866)
+    # shellcheck disable=2206
+    typeset -a MCCI_BOARDS=(${MCCI_CI_BOARDS:-feather32u4})
+    # shellcheck disable=2206
+    typeset -a MCCI_REGIONS=(${MCCI_CI_REGIONS:-us915 eu868 au915 as923 as923jp kr920 in866})
     typeset -a MCCI_RADIOS=(sx1276 sx1272)
     typeset GENOPTS=_avropts
     ci_lmic_generic "${MCCI_EXAMPLES_ALL[@]}"
